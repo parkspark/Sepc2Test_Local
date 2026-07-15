@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spec2Test - TC 자동 생성기 - Local</title>
+    <!-- Google Fonts & Lucide Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-card: rgba(22, 28, 45, 0.7);
+            --bg-card-hover: rgba(30, 41, 59, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(99, 102, 241, 0.2);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --primary: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Header Style */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-premium);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-section i {
+            color: var(--primary);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+        }
+
+        .logo-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-title p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Color classes for status badge */
+        .status-idle {
+            color: var(--text-secondary);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        .status-idle .status-dot {
+            background-color: var(--text-secondary);
+        }
+
+        .status-running {
+            color: var(--info);
+            border-color: rgba(6, 182, 212, 0.2);
+        }
+
+        .status-running .status-dot {
+            background-color: var(--info);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-needs_human {
+            color: var(--warning);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .status-needs_human .status-dot {
+            background-color: var(--warning);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-completed {
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .status-completed .status-dot {
+            background-color: var(--success);
+        }
+
+        .status-failed {
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .status-failed .status-dot {
+            background-color: var(--danger);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.9);
+                opacity: 0.5;
+            }
+        }
+
+        /* Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-premium);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        /* File Upload Styling */
+        .upload-zone {
+            border: 2px dashed rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            box-shadow: 0 0 15px var(--border-glow);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-text {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .upload-subtext {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .file-selected-badge {
+            margin-top: 0.75rem;
+            padding: 0.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-selected-badge span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80%;
+        }
+
+        .file-selected-badge i {
+            cursor: pointer;
+            color: var(--danger);
+        }
+
+        /* Action Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: var(--text-muted);
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        /* Progress List (Stepper) */
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .progress-item.done {
+            border-color: rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.03);
+            color: var(--text-secondary);
+        }
+
+        .progress-item.running {
+            border-color: rgba(6, 182, 212, 0.3);
+            background: rgba(6, 182, 212, 0.05);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .progress-item.blocked {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+            color: #fca5a5;
+        }
+
+        .progress-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        .progress-item.done .progress-icon {
+            color: var(--success);
+        }
+
+        .progress-item.running .progress-icon {
+            color: var(--info);
+            animation: rotate 2s linear infinite;
+        }
+
+        .progress-item.blocked .progress-icon {
+            color: var(--danger);
+        }
+
+        .progress-item.pending .progress-icon {
+            color: var(--text-muted);
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Log Console */
+        .console-container {
+            display: flex;
+            flex-direction: column;
+            height: 520px;
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
+            padding: 0.75rem 1.25rem;
+        }
+
+        .console-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .console-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .console-body {
+            flex-grow: 1;
+            background: #05070f;
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: var(--radius-lg);
+            border-bottom-right-radius: var(--radius-lg);
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #d1d5db;
+            white-space: pre-wrap;
+            word-break: break-all;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Live log highlighting */
+        .log-phase {
+            color: #22d3ee;
+            font-weight: bold;
+        }
+
+        .log-render {
+            color: #4ade80;
+        }
+
+        .log-vision {
+            color: #c084fc;
+        }
+
+        .log-error {
+            color: #f87171;
+            font-weight: bold;
+        }
+
+        .log-warning {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .log-system {
+            color: #a1a1aa;
+            font-style: italic;
+        }
+
+        /* Needs Human Intervention Alert */
+        .human-intervention-banner {
+            display: none;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .human-intervention-banner i {
+            color: var(--warning);
+            font-size: 1.75rem;
+            margin-top: 3px;
+        }
+
+        .human-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fef08a;
+            margin-bottom: 4px;
+        }
+
+        .human-content p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+        }
+
+        .human-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .human-actions .btn {
+            width: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Result Section */
+        .result-section {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-premium);
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .tabs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .tab-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab-actions .btn {
+            width: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .tab-content {
+            display: none;
+            padding-top: 0.5rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Interactive Data Table */
+        .table-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input-wrapper {
+            flex-grow: 1;
+            position: relative;
+            min-width: 250px;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.1);
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1.5rem 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: rgba(10, 15, 30, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+        }
+
+        /* Highlight specific column styles */
+        .col-no {
+            width: 60px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .col-cat {
+            font-weight: 500;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .col-item {
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 200px;
+        }
+
+        .col-step {
+            min-width: 250px;
+            white-space: pre-line;
+        }
+
+        .col-result {
+            min-width: 250px;
+            white-space: pre-line;
+        }
+
+        /* Pagination controls */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination-buttons .btn {
+            width: auto;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        /* Markdown rendering styles */
+        .md-viewer {
+            padding: 1.5rem;
+            background: rgba(10, 15, 30, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+            color: #d1d5db;
+        }
+
+        .md-viewer h1,
+        .md-viewer h2,
+        .md-viewer h3 {
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .md-viewer h2 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .md-viewer ul,
+        .md-viewer ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .md-viewer li {
+            margin-bottom: 0.35rem;
+        }
+
+        .md-viewer code {
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #f472b6;
+        }
+
+        .md-viewer pre {
+            background: #05070f;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .md-viewer pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <i data-lucide="activity"></i>
+                <div class="logo-title">
+                    <h1>Ralph Loop UI</h1>
+                    <p>기획문서 기반 TC & 의문점 자동 생성 파이프라인</p>
+                </div>
+            </div>
+            <div id="statusBadge" class="status-badge status-idle">
+                <span class="status-dot"></span>
+                <span id="statusText">대기 중</span>
+            </div>
+        </header>
+
+        <!-- Needs Human Intervention Banner -->
+        <div id="humanBanner" class="human-intervention-banner">
+            <i data-lucide="alert-triangle"></i>
+            <div class="human-content">
+                <h4>사람 개입 필요 (Needs Human Intervention)</h4>
+                <p id="humanReason">이유를 불러오는 중...</p>
+                <div class="human-actions">
+                    <button id="btnResume" class="btn btn-primary">
+                        <i data-lucide="play"></i> 문제를 해결했습니다. 이어서 진행
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Sidebar Panel: Controls & Progress -->
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <!-- Setup Card -->
+                <div class="card">
+                    <h2 class="card-title"><i data-lucide="settings"></i> 설정 및 실행</h2>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <label style="font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">1. 기획서 PDF 파일
+                            (필수)</label>
+                        <div class="upload-zone" id="pdfZone">
+                            <i data-lucide="file-text" class="upload-icon"></i>
+                            <div class="upload-text">PDF 파일을 드래그하여 놓거나 클릭</div>
+                            <div class="upload-subtext">기획서 파일 (.pdf)</div>
+                            <input type="file" id="pdfInput" accept=".pdf">
+                        </div>
+                        <div id="pdfBadge" class="file-selected-badge">
+                            <span id="pdfName">파일 없음</span>
+                            <i data-lucide="x" id="pdfClear"></i>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <label style="font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">2. 스타일 가이드
+                            CSV (선택)</label>
+                        <div class="upload-zone" id="csvZone">
+                            <i data-lucide="file-spreadsheet" class="upload-icon"></i>
+                            <div class="upload-text">스타일 가이드 CSV를 드래그하거나 클릭</div>
+                            <div class="upload-subtext">업로드하지 않으면 기존 가이드를 재사용합니다.</div>
+                            <input type="file" id="csvInput" accept=".csv">
+                        </div>
+                        <div id="csvBadge" class="file-selected-badge">
+                            <span id="csvName">파일 없음</span>
+                            <i data-lucide="x" id="csvClear"></i>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+                        <button id="btnStart" class="btn btn-primary" style="flex: 2;" disabled>
+                            <i data-lucide="play"></i> 분석 시작
+                        </button>
+                        <button id="btnStop" class="btn btn-danger" style="flex: 1; display: none;">
+                            <i data-lucide="square"></i> 중지
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Checklist Card -->
+                <div class="card">
+                    <h2 class="card-title"><i data-lucide="check-square"></i> 실시간 진행 사항</h2>
+                    <div id="progressContainer" class="progress-list">
+                        <div class="progress-item pending">
+                            <div class="progress-icon"><i data-lucide="circle"></i></div>
+                            <div>기획서 업로드 대기 중</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console Log Panel -->
+            <div class="console-container">
+                <div class="console-header">
+                    <div class="console-dots">
+                        <span class="console-dot" style="background-color: #ef4444;"></span>
+                        <span class="console-dot" style="background-color: #f59e0b;"></span>
+                        <span class="console-dot" style="background-color: #10b981;"></span>
+                    </div>
+                    <span
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); font-family: var(--font-mono);">local_pipeline.log</span>
+                    <button id="btnClearConsole" class="btn btn-secondary"
+                        style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px;">
+                        <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i> 콘솔 비우기
+                    </button>
+                </div>
+                <div id="consoleBody" class="console-body">
+                    [System] 시스템이 준비되었습니다. 기획서를 업로드하고 "분석 시작"을 클릭하면 실시간 로그가 출력됩니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Tabs & Viewer -->
+        <div id="resultSection" class="result-section">
+            <div class="tabs-header">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="tab-csv">
+                        <i data-lucide="table"></i> 생성된 테스트케이스 (CSV)
+                    </button>
+                    <button class="tab-btn" data-tab="tab-questions">
+                        <i data-lucide="help-circle"></i> 의문점 목록 (Markdown)
+                    </button>
+                    <button class="tab-btn" data-tab="tab-report">
+                        <i data-lucide="clipboard-list"></i> 커버리지 리포트
+                    </button>
+                </div>
+                <div class="tab-actions">
+                    <a id="btnDownloadCsv" href="#" class="btn btn-primary" style="display: none;">
+                        <i data-lucide="download"></i> CSV 다운로드
+                    </a>
+                    <a id="btnDownloadMd" href="#" class="btn btn-secondary" style="display: none;">
+                        <i data-lucide="download"></i> MD 다운로드
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tab content: CSV Test Cases -->
+            <div id="tab-csv" class="tab-content active">
+                <div class="table-controls">
+                    <div class="search-input-wrapper">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="tableSearch" class="search-input"
+                            placeholder="테스트케이스 검색 (테스트 항목, 기대결과 등)...">
+                    </div>
+                    <select id="filterBigCat" class="filter-select">
+                        <option value="">대분류: 전체</option>
+                    </select>
+                    <select id="filterMidCat" class="filter-select">
+                        <option value="">중분류: 전체</option>
+                    </select>
+                    <select id="filterSubCat" class="filter-select">
+                        <option value="">소분류: 전체</option>
+                    </select>
+                </div>
+                <div class="table-scroll">
+                    <table id="tcTable">
+                        <thead>
+                            <tr>
+                                <th class="col-no">No</th>
+                                <th>대분류</th>
+                                <th>중분류</th>
+                                <th>소분류</th>
+                                <th class="col-item">테스트 항목</th>
+                                <th>사전조건</th>
+                                <th class="col-step">테스트 스텝</th>
+                                <th class="col-result">기대결과</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tcTableBody">
+                            <tr>
+                                <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                    데이터를 불러오고 있습니다...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <span id="paginationInfo">Showing 0 to 0 of 0 entries</span>
+                    <div class="pagination-buttons">
+                        <button id="btnPrevPage" class="btn btn-secondary"><i data-lucide="chevron-left"></i>
+                            이전</button>
+                        <button id="btnNextPage" class="btn btn-secondary">다음 <i
+                                data-lucide="chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab content: Questions Markdown -->
+            <div id="tab-questions" class="tab-content">
+                <div id="questionsViewer" class="md-viewer">
+                    의문점 파일 내용을 불러오는 중...
+                </div>
+            </div>
+
+            <!-- Tab content: Coverage Report -->
+            <div id="tab-report" class="tab-content">
+                <div id="reportViewer" class="md-viewer">
+                    커버리지 리포트를 불러오는 중...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedPdf = null;
+        let selectedCsv = null;
+        let logEventSource = null;
+        let checkStatusInterval = null;
+        let csvData = [];
+        let filteredCsvData = [];
+
+        // Table Pagination State
+        const itemsPerPage = 15;
+        let currentPage = 1;
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Elements
+        const pdfZone = document.getElementById('pdfZone');
+        const pdfInput = document.getElementById('pdfInput');
+        const pdfBadge = document.getElementById('pdfBadge');
+        const pdfName = document.getElementById('pdfName');
+        const pdfClear = document.getElementById('pdfClear');
+
+        const csvZone = document.getElementById('csvZone');
+        const csvInput = document.getElementById('csvInput');
+        const csvBadge = document.getElementById('csvBadge');
+        const csvName = document.getElementById('csvName');
+        const csvClear = document.getElementById('csvClear');
+
+        const btnStart = document.getElementById('btnStart');
+        const btnStop = document.getElementById('btnStop');
+        const btnResume = document.getElementById('btnResume');
+        const humanBanner = document.getElementById('humanBanner');
+        const humanReason = document.getElementById('humanReason');
+
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+
+        const progressContainer = document.getElementById('progressContainer');
+        const consoleBody = document.getElementById('consoleBody');
+        const btnClearConsole = document.getElementById('btnClearConsole');
+
+        const resultSection = document.getElementById('resultSection');
+        const btnDownloadCsv = document.getElementById('btnDownloadCsv');
+        const btnDownloadMd = document.getElementById('btnDownloadMd');
+
+        // Setup file selection handlers
+        setupFileUploader(pdfZone, pdfInput, pdfBadge, pdfName, (file) => {
+            selectedPdf = file;
+            updateStartButtonState();
+        }, () => {
+            selectedPdf = null;
+            updateStartButtonState();
+        });
+
+        setupFileUploader(csvZone, csvInput, csvBadge, csvName, (file) => {
+            selectedCsv = file;
+        }, () => {
+            selectedCsv = null;
+        });
+
+        pdfClear.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pdfInput.value = '';
+            pdfBadge.style.display = 'none';
+            pdfZone.style.display = 'block';
+            selectedPdf = null;
+            updateStartButtonState();
+        });
+
+        csvClear.addEventListener('click', (e) => {
+            e.stopPropagation();
+            csvInput.value = '';
+            csvBadge.style.display = 'none';
+            csvZone.style.display = 'block';
+            selectedCsv = null;
+        });
+
+        function setupFileUploader(zone, input, badge, nameEl, onSelect, onClear) {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (input.accept === '.pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                        alert('PDF 파일만 등록 가능합니다.');
+                        return;
+                    }
+                    if (input.accept === '.csv' && !file.name.toLowerCase().endsWith('.csv')) {
+                        alert('CSV 파일만 등록 가능합니다.');
+                        return;
+                    }
+                    input.files = e.dataTransfer.files;
+                    handleFileSelection(file, zone, badge, nameEl, onSelect);
+                }
+            });
+
+            input.addEventListener('change', () => {
+                if (input.files.length > 0) {
+                    handleFileSelection(input.files[0], zone, badge, nameEl, onSelect);
+                }
+            });
+        }
+
+        function handleFileSelection(file, zone, badge, nameEl, callback) {
+            zone.style.display = 'none';
+            badge.style.display = 'flex';
+            const sizeKB = (file.size / 1024).toFixed(1);
+            nameEl.textContent = `${file.name} (${sizeKB} KB)`;
+            callback(file);
+        }
+
+        function updateStartButtonState() {
+            btnStart.disabled = !selectedPdf;
+        }
+
+        // Action Handlers
+        btnStart.addEventListener('click', () => {
+            if (!selectedPdf) return;
+
+            const formData = new FormData();
+            formData.append('pdf', selectedPdf);
+            if (selectedCsv) {
+                formData.append('csv', selectedCsv);
+            }
+
+            // UI updates for start
+            btnStart.style.display = 'none';
+            btnStop.style.display = 'inline-flex';
+            consoleBody.innerHTML = `[System] 기획서 업로드 완료. 분석 스크립트를 백그라운드에서 실행합니다...\n`;
+            resultSection.style.display = 'none';
+            humanBanner.style.display = 'none';
+
+            fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        resetUI();
+                        return;
+                    }
+                    startLogsStream();
+                    startStatusPolling();
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('서버 연결 중 오류가 발생했습니다.');
+                    resetUI();
+                });
+        });
+
+        btnStop.addEventListener('click', () => {
+            if (confirm('실행 중인 파이프라인 프로세스를 종료하시겠습니까?')) {
+                fetch('/api/stop', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        appendConsoleLog(`\n[System] ${data.message}\n`, 'log-system');
+                        stopLogsStream();
+                        pollStatusOnce();
+                    });
+            }
+        });
+
+        btnResume.addEventListener('click', () => {
+            btnResume.disabled = true;
+            fetch('/api/resume', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    btnResume.disabled = false;
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    humanBanner.style.display = 'none';
+                    startLogsStream();
+                    startStatusPolling();
+                })
+                .catch(err => {
+                    btnResume.disabled = false;
+                    console.error(err);
+                });
+        });
+
+        btnClearConsole.addEventListener('click', () => {
+            consoleBody.innerHTML = '';
+        });
+
+        // Event Stream for Logs
+        function startLogsStream() {
+            if (logEventSource) {
+                logEventSource.close();
+            }
+            logEventSource = new EventSource('/api/logs');
+            logEventSource.onmessage = (event) => {
+                if (event.data) {
+                    appendConsoleLog(event.data + '\n');
+                }
+            };
+            logEventSource.onerror = (err) => {
+                console.log('SSE Stream closed or encountered error.');
+                if (logEventSource) {
+                    logEventSource.close();
+                    logEventSource = null;
+                }
+            };
+        }
+
+        function stopLogsStream() {
+            if (logEventSource) {
+                logEventSource.close();
+                logEventSource = null;
+            }
+        }
+
+        // Color coding console logs
+        function appendConsoleLog(text, customClass = '') {
+            const span = document.createElement('span');
+            if (customClass) {
+                span.className = customClass;
+            } else {
+                // Determine classes based on content
+                if (text.includes('[Phase 0]') || text.includes('[Phase 1]') || text.includes('[Phase 2]') || text.includes('[반복 요약]')) {
+                    span.className = 'log-phase';
+                } else if (text.includes('[render]')) {
+                    span.className = 'log-render';
+                } else if (text.includes('[vision]')) {
+                    span.className = 'log-vision';
+                } else if (text.includes('[오류]') || text.includes('OllamaError') || text.includes('Exception') || text.includes('Traceback')) {
+                    span.className = 'log-error';
+                } else if (text.includes('[경고]') || text.includes('Warning') || text.includes('WARNING')) {
+                    span.className = 'log-warning';
+                } else if (text.startsWith('[System]')) {
+                    span.className = 'log-system';
+                }
+            }
+            span.textContent = text;
+            consoleBody.appendChild(span);
+            consoleBody.scrollTop = consoleBody.scrollHeight;
+        }
+
+        // Status Polling
+        function startStatusPolling() {
+            if (checkStatusInterval) {
+                clearInterval(checkStatusInterval);
+            }
+            pollStatusOnce();
+            checkStatusInterval = setInterval(pollStatusOnce, 1500);
+        }
+
+        function stopStatusPolling() {
+            if (checkStatusInterval) {
+                clearInterval(checkStatusInterval);
+                checkStatusInterval = null;
+            }
+        }
+
+        function pollStatusOnce() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    updateStatusBadge(data.status);
+                    updateProgressChecklist(data.progress);
+
+                    if (data.status === 'NEEDS_HUMAN') {
+                        stopLogsStream();
+                        stopStatusPolling();
+                        humanBanner.style.display = 'flex';
+                        humanReason.textContent = data.message;
+                        btnStart.style.display = 'inline-flex';
+                        btnStop.style.display = 'none';
+                    } else if (data.status === 'COMPLETED') {
+                        stopLogsStream();
+                        stopStatusPolling();
+                        appendConsoleLog(`\n[System] 작업이 완료되었습니다! 하단에서 산출물을 확인하세요.\n`, 'log-render');
+                        btnStart.style.display = 'inline-flex';
+                        btnStop.style.display = 'none';
+                        loadOutputs();
+                    } else if (data.status === 'STOPPED' || data.status === 'IDLE') {
+                        stopLogsStream();
+                        stopStatusPolling();
+                        btnStart.style.display = 'inline-flex';
+                        btnStop.style.display = 'none';
+                    }
+                })
+                .catch(err => console.error('Status check failed:', err));
+        }
+
+        function updateStatusBadge(status) {
+            statusBadge.className = `status-badge status-${status.toLowerCase()}`;
+
+            let label = "대기 중";
+            if (status === "RUNNING") label = "분석 중";
+            else if (status === "NEEDS_HUMAN") label = "사람 개입 대기";
+            else if (status === "COMPLETED") label = "완료";
+            else if (status === "STOPPED") label = "중지됨";
+
+            statusText.textContent = label;
+        }
+
+        function updateProgressChecklist(progress) {
+            if (!progress) {
+                // If progress not available, keep default
+                return;
+            }
+
+            let html = '';
+
+            // Phase 0
+            if (progress.phase0 && progress.phase0.length > 0) {
+                html += `<div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-top: 0.25rem;">PHASE 0: 초기화</div>`;
+                progress.phase0.forEach(item => {
+                    html += renderChecklistItem(item);
+                });
+            }
+
+            // Phase 1
+            if (progress.phase1 && progress.phase1.length > 0) {
+                html += `<div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-top: 0.75rem;">PHASE 1: 섹션별 TC 작성</div>`;
+                progress.phase1.forEach(item => {
+                    html += renderChecklistItem(item);
+                });
+            }
+
+            // Phase 2
+            if (progress.phase2 && progress.phase2.length > 0) {
+                html += `<div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-top: 0.75rem;">PHASE 2: 병합 및 검증</div>`;
+                progress.phase2.forEach(item => {
+                    html += renderChecklistItem(item);
+                });
+            }
+
+            progressContainer.innerHTML = html;
+            lucide.createIcons(); // rebuild icons
+        }
+
+        function renderChecklistItem(item) {
+            let icon = 'circle';
+            let classname = 'pending';
+
+            if (item.status === 'done') {
+                icon = 'check-circle-2';
+                classname = 'done';
+            } else if (item.status === 'running') {
+                icon = 'loader';
+                classname = 'running';
+            } else if (item.status === 'blocked') {
+                icon = 'alert-octagon';
+                classname = 'blocked';
+            }
+
+            return `
+                <div class="progress-item ${classname}">
+                    <div class="progress-icon"><i data-lucide="${icon}" style="width: 14px; height: 14px;"></i></div>
+                    <div style="flex-grow: 1;">${escapeHtml(item.text)}</div>
+                </div>
+            `;
+        }
+
+        function resetUI() {
+            btnStart.style.display = 'inline-flex';
+            btnStop.style.display = 'none';
+            updateStatusBadge('IDLE');
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Result loading
+        function loadOutputs() {
+            fetch('/api/outputs')
+                .then(res => res.json())
+                .then(data => {
+                    resultSection.style.display = 'flex';
+
+                    // Load CSV Grid
+                    if (data.csv && Array.isArray(data.csv)) {
+                        csvData = data.csv;
+                        filteredCsvData = [...csvData];
+                        currentPage = 1;
+                        buildTableFilters();
+                        renderTable();
+
+                        // Show download button
+                        btnDownloadCsv.href = '/api/download/csv';
+                        btnDownloadCsv.style.display = 'inline-flex';
+                    } else {
+                        document.getElementById('tcTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; color: var(--danger); padding: 2rem;">
+                                CSV 파일을 로드할 수 없거나 형식이 잘못되었습니다.
+                            </td>
+                        </tr>
+                    `;
+                    }
+
+                    // Load Questions MD
+                    const questionsViewer = document.getElementById('questionsViewer');
+                    if (data.markdown) {
+                        questionsViewer.innerHTML = marked.parse(data.markdown);
+                        btnDownloadMd.href = '/api/download/markdown';
+                        btnDownloadMd.style.display = 'inline-flex';
+                    } else {
+                        questionsViewer.innerHTML = '<p style="color: var(--text-muted);">생성된 의문점이 없습니다.</p>';
+                    }
+
+                    // Load Coverage Report
+                    const reportViewer = document.getElementById('reportViewer');
+                    if (data.coverage) {
+                        reportViewer.innerHTML = marked.parse(data.coverage);
+                    } else {
+                        reportViewer.innerHTML = '<p style="color: var(--text-muted);">커버리지 리포트 파일이 아직 생성되지 않았습니다.</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading outputs:', err);
+                });
+        }
+
+        // Table Interactive Features
+        const tableSearch = document.getElementById('tableSearch');
+        const filterBigCat = document.getElementById('filterBigCat');
+        const filterMidCat = document.getElementById('filterMidCat');
+        const filterSubCat = document.getElementById('filterSubCat');
+        const btnPrevPage = document.getElementById('btnPrevPage');
+        const btnNextPage = document.getElementById('btnNextPage');
+        const paginationInfo = document.getElementById('paginationInfo');
+
+        tableSearch.addEventListener('input', applyFilters);
+        filterBigCat.addEventListener('change', applyFilters);
+        filterMidCat.addEventListener('change', applyFilters);
+        filterSubCat.addEventListener('change', applyFilters);
+
+        btnPrevPage.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+
+        btnNextPage.addEventListener('click', () => {
+            const maxPage = Math.ceil(filteredCsvData.length / itemsPerPage);
+            if (currentPage < maxPage) {
+                currentPage++;
+                renderTable();
+            }
+        });
+
+        function buildTableFilters() {
+            // Get unique values
+            const bigCats = new Set();
+            const midCats = new Set();
+            const subCats = new Set();
+
+            csvData.forEach(row => {
+                if (row['대분류']) bigCats.add(row['대분류']);
+                if (row['중분류']) midCats.add(row['중분류']);
+                if (row['소분류']) subCats.add(row['소분류']);
+            });
+
+            // Populate selectors
+            populateFilter(filterBigCat, bigCats, '대분류');
+            populateFilter(filterMidCat, midCats, '중분류');
+            populateFilter(filterSubCat, subCats, '소분류');
+        }
+
+        function populateFilter(selectElement, valuesSet, labelName) {
+            // Keep the first default option
+            selectElement.innerHTML = `<option value="">${labelName}: 전체</option>`;
+            Array.from(valuesSet).sort().forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                selectElement.appendChild(opt);
+            });
+        }
+
+        function applyFilters() {
+            const searchVal = tableSearch.value.toLowerCase().trim();
+            const bigVal = filterBigCat.value;
+            const midVal = filterMidCat.value;
+            const subVal = filterSubCat.value;
+
+            filteredCsvData = csvData.filter(row => {
+                // Text search match
+                const matchText = !searchVal ||
+                    (row['대분류'] && row['대분류'].toLowerCase().includes(searchVal)) ||
+                    (row['중분류'] && row['중분류'].toLowerCase().includes(searchVal)) ||
+                    (row['소분류'] && row['소분류'].toLowerCase().includes(searchVal)) ||
+                    (row['테스트 항목'] && row['테스트 항목'].toLowerCase().includes(searchVal)) ||
+                    (row['테스트 스텝'] && row['테스트 스텝'].toLowerCase().includes(searchVal)) ||
+                    (row['사전조건'] && row['사전조건'].toLowerCase().includes(searchVal)) ||
+                    (row['기대결과'] && row['기대결과'].toLowerCase().includes(searchVal));
+
+                const matchBig = !bigVal || row['대분류'] === bigVal;
+                const matchMid = !midVal || row['중분류'] === midVal;
+                const matchSub = !subVal || row['소분류'] === subVal;
+
+                return matchText && matchBig && matchMid && matchSub;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tcTableBody');
+
+            if (filteredCsvData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            검색 조건에 맞는 테스트케이스가 없습니다.
+                        </td>
+                    </tr>
+                `;
+                paginationInfo.textContent = 'Showing 0 to 0 of 0 entries';
+                btnPrevPage.disabled = true;
+                btnNextPage.disabled = true;
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredCsvData.length);
+            const pageData = filteredCsvData.slice(startIndex, endIndex);
+
+            let html = '';
+            pageData.forEach(row => {
+                html += `
+                    <tr>
+                        <td class="col-no">${escapeHtml(row['No'])}</td>
+                        <td class="col-cat">${escapeHtml(row['대분류'])}</td>
+                        <td class="col-cat">${escapeHtml(row['중분류'])}</td>
+                        <td class="col-cat">${escapeHtml(row['소분류'])}</td>
+                        <td class="col-item">${escapeHtml(row['테스트 항목'])}</td>
+                        <td>${escapeHtml(row['사전조건'])}</td>
+                        <td class="col-step">${escapeHtml(row['테스트 스텝'])}</td>
+                        <td class="col-result">${escapeHtml(row['기대결과'])}</td>
+                        <td>${escapeHtml(row['비고'])}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+
+            // Update pagination UI
+            paginationInfo.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${filteredCsvData.length} entries`;
+            btnPrevPage.disabled = currentPage === 1;
+            btnNextPage.disabled = endIndex >= filteredCsvData.length;
+        }
+
+        // Tab Switching Logic
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                btn.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // Check if there's an active running session on page load
+        pollStatusOnce();
+        // If it was running, restart polling
+        fetch('/api/status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'RUNNING') {
+                    startLogsStream();
+                    startStatusPolling();
+                } else if (data.status === 'COMPLETED') {
+                    loadOutputs();
+                }
+            });
+    </script>
+</body>
+
+</html>
