@@ -13,6 +13,10 @@
 
 Spec2Test_local reads a game design document, understands every page with a local vision model, and generates a complete, style-consistent **test case CSV** plus a **list of spec ambiguities** for your designers — using nothing but your own machine.
 
+### 🎬 Demo Video
+
+<video src="image/시연영상.mp4" controls width="100%"></video>
+
 ---
 
 ## 💡 Why this project?
@@ -119,7 +123,7 @@ python scripts/local_pipeline.py          # process everything, resumable
 | `output/TC_<spec>.csv` | Merged, renumbered, validation-passing test cases (No / 3-level category / item / precondition / steps / expected result / note) |
 | `output/의문점_<spec>.md` | Deduplicated list of spec ambiguities, each with a page source |
 | `state/coverage_report.md` | LLM self-audit against the RULES checklist — what's covered, what needs human review |
-| `archive/<spec>_<timestamp>/` | Full snapshot of the above + intermediate artifacts, kept per run |
+| `archive/<spec>_<timestamp>/` | Full snapshot of the original `input/` + the above + intermediate artifacts, kept per run |
 
 ---
 

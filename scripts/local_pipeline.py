@@ -884,12 +884,14 @@ def phase2_merge():
 
 
 def archive_run(spec_name):
-    """다음 업로드가 output/·work/·state/를 지우기 전에, 완료된 산출물 전체를
-    archive/<기획서명>_<타임스탬프>/ 밑에 그대로 복사해 보존한다."""
+    """다음 업로드가 input/·output/·work/·state/를 지우기 전에, 이번 실행에 쓰인 원본
+    입력물과 산출물 전체를 archive/<기획서명>_<타임스탬프>/ 밑에 그대로 복사해 보존한다."""
     ts = time.strftime("%Y%m%d_%H%M%S")
     dest = ARCHIVE_DIR / f"{spec_name}_{ts}"
     dest.mkdir(parents=True, exist_ok=True)
 
+    if INPUT_DIR.exists():
+        shutil.copytree(INPUT_DIR, dest / "input", dirs_exist_ok=True)
     if OUTPUT_DIR.exists():
         shutil.copytree(OUTPUT_DIR, dest / "output", dirs_exist_ok=True)
     if WORK_DIR.exists():
