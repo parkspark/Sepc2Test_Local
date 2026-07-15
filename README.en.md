@@ -170,12 +170,6 @@ All knobs are constants at the top of `scripts/local_pipeline.py`:
 
 ---
 
-## 📜 License
-
-TBD.
-
----
-
 ## 📝 Changelog
 
 This project follows [Keep a Changelog](https://keepachangelog.com/) conventions.

@@ -169,12 +169,6 @@ Spec2Test_local/
 
 ---
 
-## 📜 라이선스
-
-TBD.
-
----
-
 ## 📝 Changelog
 
 이 프로젝트는 [Keep a Changelog](https://keepachangelog.com/) 형식을 따릅니다.
