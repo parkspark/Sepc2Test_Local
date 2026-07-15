@@ -23,7 +23,7 @@ If your automation depends on OpenAI or Claude APIs, every incident on *their* s
 
 | OpenAI status (3 months) | Anthropic status (90 days) |
 |---|---|
-| ![OpenAI status page showing recurring incidents](image/Dependency%20on%20external%20APIs%20001.png) | ![Claude status page showing recurring incidents](image/Dependency%20on%20external%20APIs%20002.png) |
+| ![OpenAI status page showing recurring incidents](image/openai%20status.png) | ![Claude status page showing recurring incidents](image/claude%20status.png) |
 
 Every yellow and red bar above is a window where an API-dependent pipeline stalls. Spec2Test_local has **zero** of those windows: if your PC is on, it works.
 
