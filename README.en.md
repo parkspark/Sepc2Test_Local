@@ -16,7 +16,7 @@ Spec2Test_local reads a game design document, understands every page with a loca
 ### 🎬 Demo Video
 
 시연영상 : https://youtu.be/bJy3O2Tp34M
-![alt text](image/Spec2Test_demo.gif)
+![alt text](image/Demo.gif)
 
 ---
 
