@@ -17,9 +17,14 @@ Spec2Test reads a game design document PDF, understands every page with a local 
 ### 🎬 Demo Video
 
 시연영상 : https://youtu.be/bJy3O2Tp34M
+<<<<<<< HEAD
 ![alt text](image/Demo.gif)
 
 > The demo predates the Spring Boot rewrite (it shows the earlier Python/Flask version), but the core pipeline procedure (Phase 0/1/2) and output format are unchanged.
+=======
+
+![alt text](image/Demo.gif)
+>>>>>>> f80d2d8c7c81188e6194d9ce3f2f9e13b7954fed
 
 ---
 

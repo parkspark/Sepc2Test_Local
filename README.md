@@ -17,10 +17,15 @@ Spec2Test는 게임 기획서 PDF를 읽고, 로컬 비전 모델로 모든 페�
 ### 🎬 시연 영상
 
 시연영상 : https://youtu.be/bJy3O2Tp34M
+<<<<<<< HEAD
 ![alt text](image/Demo.gif)
 
 > 데모 영상은 이전 Python/Flask 버전 기준이며, 핵심 파이프라인 절차(Phase 0/1/2)와 산출물 형식은 동일합니다.
 
+=======
+
+![alt text](image/Demo.gif)
+>>>>>>> f80d2d8c7c81188e6194d9ce3f2f9e13b7954fed
 ---
 
 ## 💡 왜 로컬 LLM인가
