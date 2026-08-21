@@ -1,129 +1,113 @@
-# 🧪 Spec2Test_local
+# 🧪 Spec2Test
 
-> **게임 기획서를 QA 테스트케이스로 — 100% 로컬에서. API 키도, 토큰 비용도, 서비스 장애도 없이.**
+> **게임 기획서를 QA 테스트케이스로 — 로컬 LLM 기반, Spring Boot + PostgreSQL + Docker로 컨테이너화.**
 
-[![Cost](https://img.shields.io/badge/API%20cost-%240.00-brightgreen)]()
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)]()
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F?logo=spring&logoColor=white)]()
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0-6DB33F?logo=spring&logoColor=white)]()
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)]()
 [![Ollama](https://img.shields.io/badge/LLM-Ollama%20(local)-black?logo=ollama)](https://ollama.com)
-[![Flask](https://img.shields.io/badge/Web%20UI-Flask-000000?logo=flask)](https://flask.palletsprojects.com/)
-[![Offline](https://img.shields.io/badge/Works-Fully%20Offline-success)]()
-
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)]()
 
 **[🇺🇸 English README](README.en.md)**
 
-Spec2Test_local은 게임 기획서를 읽고, 로컬 비전 모델로 모든 페이지를 이해한 뒤, 팀 스타일에 맞는 **테스트케이스 CSV**와 기획자에게 전달할 **의문점 목록**을 생성합니다 — 오직 내 컴퓨터만으로.
+Spec2Test는 게임 기획서 PDF를 읽고, 로컬 비전 모델로 모든 페이지를 이해한 뒤, 팀 스타일에 맞는 **테스트케이스 CSV**와 기획자에게 전달할 **의문점 목록**을 생성합니다. 기본 LLM은 API 키·토큰 비용 없이 완전히 로컬에서 도는 Ollama이며, 설정만으로 OpenAI/Anthropic으로 전환할 수 있습니다.
 
 ### 🎬 시연 영상
 
 시연영상 : https://youtu.be/bJy3O2Tp34M
-![alt text](image/Spec2Test_demo.gif)
+![alt text](image/Demo.gif)
+
+> 데모 영상은 이전 Python/Flask 버전 기준이며, 핵심 파이프라인 절차(Phase 0/1/2)와 산출물 형식은 동일합니다.
+
 ---
 
-## 💡 왜 만들었나
+## 💡 왜 로컬 LLM인가
 
-### 1. 남의 API가 죽었다고 내 작업이 멈추면 안 되니까
-
-자동화가 OpenAI나 Claude API에 의존하면, **그쪽의 장애가 곧 내 쪽의 블로커**가 됩니다. "가동률 99.5%"라는 말은 뒤집으면 매달 몇 시간씩은 막힌다는 뜻이고, 그 몇 시간은 꼭 제일 바쁠 때 찾아옵니다.
-
-| OpenAI 상태 페이지 (3개월) | Anthropic 상태 페이지 (90일) |
-|---|---|
-| ![OpenAI 상태 페이지 — 반복되는 장애 이력](image/openai%20status.png) | ![Claude 상태 페이지 — 반복되는 장애 이력](image/claude%20status.png) |
-
-위의 노란색·빨간색 막대 하나하나가 API 의존 파이프라인이 멈추는 구간입니다. Spec2Test_local에는 그런 구간이 **없습니다.** 내 PC가 켜져 있으면, 돌아갑니다.
-
-### 2. 토큰 비용은 생각보다 빨리 쌓이니까
-
-35페이지 슬라이드 기획서 하나를 분석하려면 — 페이지마다 비전 캡션, 섹션마다 TC 생성, 검증 실패 시 재시도, 병합 리뷰까지 — 문서 하나에 수백 번의 LLM 호출이 필요합니다. 종량제 API라면 기획서가 수정될 때마다 재생성 비용이 반복해서 나갑니다. Ollama에서는 100번째 실행도 첫 실행과 똑같이 **0원**입니다.
-
-### 3. 회사 밖으로 나가면 안 되는 문서가 있으니까
-
-기획서는 태생적으로 기밀 문서입니다. NDA 하에 일하거나, 사내망 환경이거나, 출시 전 콘텐츠를 외부 서버에 올리고 싶지 않다면 — 로컬 파이프라인은 취향이 아니라 **필수 조건**입니다.
-
-**이런 분들을 위해 만들었습니다:** 1인·인디 개발자, 소규모 QA 팀, API 비용 없이 AI 자동화를 도입하고 싶은 분, 보안상 외부 LLM을 쓸 수 없는 환경의 작업자.
+- **API 장애가 내 작업을 막지 않는다.** 외부 LLM API에 의존하면 그쪽 장애가 곧 내 블로커가 됩니다. 내 PC(또는 사내 GPU 서버)가 켜져 있으면 돌아갑니다.
+- **토큰 비용이 반복되지 않는다.** 기획서 하나를 분석하려면 수백 번의 LLM 호출이 필요합니다 — 종량제라면 재생성마다 비용이 나가지만, Ollama에서는 100번째 실행도 0원입니다.
+- **기획서가 회사 밖으로 나가지 않는다.** NDA·사내망·출시 전 콘텐츠 보안이 걸린 환경에서는 로컬 처리가 필수 조건입니다.
 
 ---
 
 ## ✨ 주요 기능
 
-- 🖼️ **슬라이드형 기획서 이해** — PDF 페이지를 렌더링해 로컬 비전 모델(`qwen2.5vl`)로 캡션을 생성합니다. UI 목업·표·아트 스펙이 사각지대가 아니라 테스트 가능한 텍스트가 됩니다.
-- 📋 **팀 스타일에 맞는 산출물** — *기존에 쓰던* TC CSV에서 약어·문장 패턴·분류 체계를 학습해, 생성된 TC가 팀 포맷에 그대로 녹아듭니다.
-- ❓ **애매모호함 탐지** — 기획서에 명시되지 않은 내용은 지어내지 않고, 출처(페이지)가 달린 의문점 목록(`의문점_*.md`)으로 분리해 기획자에게 되돌려줍니다.
-- ✅ **자가 검증 루프** — 섹션마다 규칙 기반 검증기가 CSV를 검사하고, 실패하면 오류 내용을 모델에 피드백해 최대 3회 재시도합니다.
-- 🌐 **실시간 로그가 나오는 웹 UI** — PDF를 업로드하면 단계별 진행률(`[Phase 1] (3/6, 50%) ...`)이 실시간으로 스트리밍되고, 결과를 필터링 가능한 테이블로 보고 CSV/MD로 다운로드할 수 있습니다.
-- 🔁 **파일 기반 이어하기** — 모든 단계가 파일로 체크포인트됩니다. 언제 꺼도, 다시 실행하면 하던 곳부터 이어서 진행합니다.
-- 📦 **자동 아카이빙** — 분석이 완료될 때마다 `archive/<기획서명>_<타임스탬프>/`에 전체 산출물이 스냅샷으로 보존됩니다.
-- 🛡️ **장애 내성 설계** — 일시적인 Ollama 타임아웃은 호출 단위·섹션 단위로 재시도됩니다. 한 번의 딸꾹질이 전체 실행을 죽이지 않습니다.
+- 🖼️ **슬라이드형 기획서 이해** — PDF 페이지를 렌더링해 비전 모델(`qwen2.5vl`)로 캡션을 생성합니다.
+- 📋 **팀 스타일에 맞는 산출물** — 참고 TC CSV에서 약어·문장 패턴·분류 체계를 학습합니다.
+- 🔎 **참고 TC RAG** — 참고 CSV 전체를 행 단위로 인덱싱하고, 기획 섹션마다 유사한 TC만 검색해 테스트 관점을 보강합니다. 기획서에 없는 내용은 참고 사례에서 복사하지 않습니다.
+- ❓ **애매모호함 탐지** — 명시되지 않은 내용은 지어내지 않고 출처(페이지) 있는 의문점 목록으로 분리합니다.
+- ✅ **자가 검증 루프** — 섹션마다 규칙 기반 검증기가 CSV를 검사하고, 실패하면 오류를 모델에 피드백해 재시도합니다.
+- 🌐 **실시간 로그가 나오는 웹 UI** — React 프론트엔드가 진행률을 SSE로 실시간 스트리밍하고, 결과를 필터링 가능한 테이블로 보여줍니다.
+- 🗄️ **PostgreSQL 영속화** — 업로드 원본, 페이지별 캡션, 섹션, 생성된 TC/의문점, 커버리지 리포트, 실행 로그까지 전부 DB에 저장됩니다. 실행 이력이 자동으로 보존됩니다.
+- 🔁 **DB 상태 기반 이어하기** — 각 단계가 이미 완료된 작업을 스스로 건너뛰므로, 중단(Stop) 후 재개(Resume)하거나 프로세스가 죽었다 재시작해도 하던 곳부터 이어집니다.
+- 🔌 **LLM 프로바이더 전환 가능** — 기본은 Ollama, 설정 하나로 OpenAI/Anthropic으로 전환 가능한 구조입니다.
 
 ---
 
 ## ⚙️ 동작 방식
 
 ```
-input/기획서.pdf ──► Phase 0: 페이지 렌더링 ─► 비전 캡션 ─► 섹션 인벤토리 + 스타일 가이드
-                          │
-                          ▼
-                   Phase 1: 섹션별 — TC·의문점 생성 ─► 검증(최대 3회 재시도) ─► 체크
-                          │
-                          ▼
-                   Phase 2: CSV 병합 ─► 의문점 병합 ─► 최종 검증 + 커버리지 리포트 ─► DONE
-                          │
-                          ▼
-        output/TC_*.csv + output/의문점_*.md  (+ archive/ 스냅샷)
+PDF 업로드 ──► Phase 0: 페이지 렌더링 ─► 비전 캡션 ─► 섹션 인벤토리 + 스타일 가이드
+                  │
+                  ▼
+           Phase 1: 섹션별 — TC·의문점 생성 ─► 검증(최대 3회 재시도)
+                  │
+                  ▼
+           Phase 2: CSV 병합 ─► 의문점 병합 ─► 최종 검증 + 커버리지 리포트 ─► DONE
+                  │
+                  ▼
+     PostgreSQL에 전부 저장 (test_case / question / document 테이블 등)
+     → React UI에서 CSV/MD 다운로드
 ```
 
-제어 흐름은 순수 파이썬(`scripts/local_pipeline.py`)이 담당하고, LLM은 범위가 명확한 생성 작업에만 호출됩니다. 의도된 설계입니다 — 30B급 로컬 모델은 훌륭한 생성기지만 장시간 자기주도 판단은 불안정하므로, 파이프라인은 모델에게 판단을 맡기지 않습니다.
+제어 흐름은 Spring Boot 백엔드(`PipelineService` + `pipeline/steps/*`)가 담당하고, LLM(Spring AI `ChatModel`)은 범위가 명확한 생성 작업에만 호출됩니다. 30B급 로컬 모델은 훌륭한 생성기지만 장시간 자기주도 판단은 불안정하므로, 파이프라인이 모델에게 판단을 맡기지 않는 설계는 이전 버전과 동일합니다.
 
 아키텍처 다이어그램은 [`docs/`](docs/)에 있습니다.
 
 ---
 
-## 🚀 빠른 시작
+## 🚀 빠른 시작 (Docker)
 
 ### 사전 준비
 
-1. **[Ollama](https://ollama.com)** 설치 후 실행 중인지 확인 (`ollama serve`, Windows는 보통 트레이 앱이 자동 실행).
-2. 모델 2개를 pull합니다 (교체 가능 — [설정](#-설정) 참고):
+1. **[Ollama](https://ollama.com)** 를 호스트에 설치하고 실행 (`ollama serve`).
+2. 모델 3개를 pull:
    ```bash
    ollama pull qwen3-coder:30b    # 텍스트: 섹션 인벤토리, TC 생성, 병합 리뷰
    ollama pull qwen2.5vl:32b      # 비전: 슬라이드 캡션
+   ollama pull nomic-embed-text   # 참고 TC RAG 의미 검색
    ```
-   > 💻 VRAM 24GB 정도면 쾌적합니다. 사양이 낮다면 더 가벼운 모델로 교체하세요 — 상수 한 줄만 바꾸면 됩니다.
-3. 파이썬 패키지 설치:
-   ```bash
-   pip install flask pymupdf
-   ```
+3. **Docker Desktop** 설치.
 
-### 실행 (웹 UI — 권장)
+### 실행
 
 ```bash
-python app.py
+cp .env.example .env
+docker compose up -d --build
 ```
 
-브라우저에서 **http://localhost:5000** 접속 후:
-- 기획서 **PDF** (필수)
-- 스타일 가이드로 쓸 기존 **TC CSV** (한 번 올리면 유지됨)
+브라우저에서 **http://localhost:8080** 접속 후 기획서 PDF(필수)와 참고 TC CSV(선택, 생략 시 이전 참고 CSV 재사용)를 올리고 **분석 시작**을 누르면 됩니다. Ollama는 컨테이너 밖 호스트에서 실행되며, 앱 컨테이너는 `host.docker.internal:11434`로 접속합니다.
 
-를 올리고 **분석 시작**을 누르면 됩니다. 실시간 로그를 지켜보다가, 완료되면 결과를 다운로드하세요.
-
-### 실행 (CLI)
+### 로컬 개발 (컨테이너 없이)
 
 ```bash
-python scripts/local_pipeline.py          # 남은 작업 전부 처리 (이어하기 지원)
-# 또는 한 번에 섹션 하나씩 루프:
-./loop.sh          # bash
-.\loop.ps1         # PowerShell
+docker compose up -d db                     # PostgreSQL만 컨테이너로
+cd backend && ./mvnw spring-boot:run         # 백엔드 (8080)
+cd frontend && npm install && npm run dev    # 프론트엔드 (5173, /api는 8080으로 프록시)
 ```
 
 ---
 
-## 📄 산출물
+## 📄 산출물 (DB에 저장, UI에서 다운로드)
 
-| 파일 | 내용 |
+| 테이블/문서 | 내용 |
 |---|---|
-| `output/TC_<기획서명>.csv` | 병합·번호 재부여·검증 통과된 테스트케이스 (No / 대·중·소분류 / 테스트 항목 / 사전조건 / 테스트 스텝 / 기대결과 / 비고) |
-| `output/의문점_<기획서명>.md` | 중복 제거된 기획서 의문점 목록 (각 항목에 페이지 출처 표기) |
-| `state/coverage_report.md` | RULES 체크리스트 기반 LLM 자가 감사 — 어디가 커버됐고 어디를 사람이 봐야 하는지 |
-| `archive/<기획서명>_<타임스탬프>/` | 원본 `input/` + 위 산출물 + 중간 산출물 전체 스냅샷 (실행마다 보존) |
+| `test_case` | 병합·전역 번호 재부여·검증 통과된 테스트케이스 (다운로드 시 `TC_<기획서명>.csv`, UTF-8 BOM) |
+| `document(MERGED_QUESTIONS)` | 중복 제거된 기획서 의문점 목록 (다운로드 시 `의문점_<기획서명>.md`) |
+| `document(COVERAGE_REPORT)` | RULES 체크리스트 기반 LLM 자가 감사 |
+| `page.vision_caption` | 페이지별 비전 캡션 원문 — 아트/UI TC 정확도 검수용 |
+| `log_line` | 실행 로그 전문 (SSE로 실시간 스트리밍, 새로고침해도 이어보기 가능) |
 
 ---
 
@@ -131,51 +115,49 @@ python scripts/local_pipeline.py          # 남은 작업 전부 처리 (이어�
 
 ```
 Spec2Test_local/
-├── app.py                     # Flask 웹 UI (업로드, 실시간 로그, 결과 테이블)
-├── templates/index.html       # 웹 UI 프론트엔드
-├── scripts/local_pipeline.py  # 파이프라인 엔진 (Ollama 호출, 단계, 재시도)
-├── scripts/validate_csv.py    # 규칙 기반 CSV 검증기
-├── PROMPT.md / RULES.md       # 절차·TC 작성 규칙 (단일 근거 문서)
-├── loop.ps1 / loop.sh         # CLI 루프 러너
-├── docs/                      # 아키텍처 다이어그램 (UML, 시퀀스, 유즈케이스)
-├── image/                     # README 이미지
-├── input/                     # ← 기획서 PDF + 스타일 가이드 CSV (gitignore)
-├── state/ work/ output/       # 런타임 상태·산출물 (자동 관리, gitignore)
-└── archive/                   # 실행별 스냅샷 (gitignore)
+├── backend/                    # Spring Boot (Java 17, Spring AI, PostgreSQL/JPA/Flyway)
+│   └── src/main/
+│       ├── java/com/spec2test/
+│       │   ├── api/            # REST 컨트롤러 (upload/status/stop/resume/logs/outputs)
+│       │   ├── domain/ repo/   # JPA 엔티티·리포지토리
+│       │   ├── pipeline/       # PipelineService(오케스트레이터) + steps/*
+│       │   ├── llm/            # Spring AI ChatModel 래퍼(LlmGateway), 프롬프트 로더
+│       │   ├── csv/            # TC 검증기·CSV 라이터
+│       │   └── logging/        # DB 기반 로그 + SSE 팬아웃
+│       └── resources/
+│           ├── db/migration/   # Flyway 스키마
+│           └── prompts/        # 프롬프트 템플릿 + RULES.md 런타임 사본
+├── frontend/                    # React + Vite + TypeScript
+├── Dockerfile                   # 멀티스테이지 빌드 (node → maven → JRE)
+├── docker-compose.yml           # app + postgres (Ollama는 호스트)
+├── PROMPT.md / RULES.md         # 절차·TC 작성 규칙 (단일 근거 문서, docs/prompts에도 이식됨)
+├── docs/                        # 아키텍처 다이어그램
+└── image/                       # README 이미지
 ```
 
 ---
 
 ## 🔧 설정
 
-모든 설정은 `scripts/local_pipeline.py` 상단의 상수입니다:
+`docker-compose.yml` / `.env` 환경변수로 제어합니다 (`.env.example` 참고):
 
-| 상수 | 기본값 | 의미 |
+| 변수 | 기본값 | 의미 |
 |---|---|---|
-| `MODEL_TEXT` | `qwen3-coder:30b` | 섹션 분할, TC/의문점 생성, 병합 리뷰 |
-| `MODEL_VISION` | `qwen2.5vl:32b` | 페이지별 슬라이드 캡션 |
-| `OLLAMA_HOST` | `http://localhost:11434` | Ollama 엔드포인트 |
-| `NUM_CTX` | `65536` | 호출당 컨텍스트 길이 |
-| `MAX_VALIDATE_RETRIES` | `3` | 섹션당 생성 재시도 횟수 |
-| `PAGE_RENDER_DPI` | `150` | PDF 렌더링 해상도 |
+| `SPEC2TEST_LLM_PROVIDER` | `ollama` | `ollama` \| `openai` \| `anthropic` |
+| `SPEC2TEST_TEXT_MODEL` | `qwen3-coder:30b` | 섹션 분할, TC/의문점 생성, 병합 리뷰 |
+| `SPEC2TEST_VISION_MODEL` | `qwen2.5vl:32b` | 페이지별 슬라이드 캡션 |
+| `SPEC2TEST_EMBEDDING_MODEL` | `nomic-embed-text` | RAG 의미 검색용 Ollama 임베딩 모델 (`ollama pull nomic-embed-text`) |
+| `SPEC2TEST_EMBEDDING_PROVIDER` | `ollama` | RAG 임베딩 제공자. 채팅 제공자와 독립적으로 설정 가능 |
+| `SPEC2TEST_RAG_TOP_K` | `6` | 섹션별 프롬프트에 주입할 유사 참고 TC 수 |
+| `OLLAMA_BASE_URL` | `http://host.docker.internal:11434` | Ollama 엔드포인트 |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | (빈 값) | 클라우드 프로바이더 사용 시에만 필요 |
+
+그 외 컨텍스트 길이·타임아웃·재시도 횟수 등은 `backend/src/main/resources/application.yml`의 `spec2test.llm.*`에서 조정합니다.
 
 ---
 
 ## ⚠️ 개선해야할 한계
 
-- 30B급 로컬 모델은 장문 판단·미묘한 애매모호함 분류에서 프론티어 API 대비 정확도가 떨어집니다 — 산출물은 **사람 검수를 전제**로 설계되었고, `state/coverage_report.md`가 어디부터 봐야 할지 알려줍니다.
-- 비전 캡션 품질이 아트/UI TC 정확도를 좌우합니다. `work/spec/pages/*.vision.md`를 한 번 훑어보고, 틀린 캡션이 있으면 그 파일만 지우고 재실행하세요 — 해당 페이지만 다시 캡션됩니다.
-- Ollama가 완전히 죽어 있으면 무한 대기하지 않고, 웹 UI의 `NEEDS_HUMAN` 배너에 명확한 사유를 띄우고 멈춥니다.
-
----
-
-## 📝 Changelog
-
-이 프로젝트는 [Keep a Changelog](https://keepachangelog.com/) 형식을 따릅니다.
-
-### [0.1.0] — Unreleased
-- 파일 업로드, 실시간 SSE 로그 스트리밍, 진행 체크리스트, 필터링 가능한 결과 테이블을 갖춘 웹 UI (`app.py`, `templates/index.html`) 추가.
-- 일시적인 Ollama 오류에 대한 호출 단위·섹션 단위 재시도 — 타임아웃 한 번으로 전체 실행이 죽지 않도록 함.
-- 단계별·섹션별 진행률(%)과 타임스탬프가 포함된 상세 파이프라인 로깅.
-- `archive/<기획서명>_<타임스탬프>/`로의 실행별 자동 아카이빙.
-- Windows 서브프로세스 관련 버그 수정 (콘솔 상속으로 인한 즉사 문제, SSE 이벤트 프레이밍 버그).
+- 30B급 로컬 모델은 장문 판단·미묘한 애매모호함 분류에서 프론티어 API 대비 정확도가 떨어집니다 — 산출물은 **사람 검수를 전제**로 설계되었고, 커버리지 리포트가 어디부터 봐야 할지 알려줍니다.
+- 비전 캡션 품질이 아트/UI TC 정확도를 좌우합니다. `page.vision_caption`을 검수하세요.
+- Stop은 협조적 취소이며 진행 중인 LLM 호출 하나가 끝날 때까지 지연될 수 있습니다.

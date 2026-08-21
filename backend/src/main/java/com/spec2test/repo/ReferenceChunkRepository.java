@@ -1,0 +1,18 @@
+package com.spec2test.repo;
+
+import com.spec2test.domain.ReferenceChunk;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
+
+public interface ReferenceChunkRepository extends JpaRepository<ReferenceChunk, Long> {
+
+    List<ReferenceChunk> findByRunIdOrderByChunkNo(Long runId);
+
+    long countByRunId(Long runId);
+
+    @Modifying
+    @Transactional
+    void deleteByRunId(Long runId);
+}

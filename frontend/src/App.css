@@ -1,0 +1,300 @@
+.app-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-header p {
+  color: var(--text);
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+}
+
+.error-text {
+  color: var(--error);
+}
+
+/* Upload panel */
+.drop-zone-row {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.drop-zone {
+  flex: 1;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.drop-zone:hover:not(.disabled) {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.drop-zone.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.drop-zone-label {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.drop-zone-hint {
+  margin-top: 6px;
+  font-size: 0.85em;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.primary-button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-weight: 600;
+}
+
+/* Control bar */
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 24px;
+}
+
+.status-badge {
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.status-running {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.status-completed {
+  color: var(--success);
+}
+
+.status-needs_human {
+  color: var(--warn);
+}
+
+.status-stopped {
+  color: var(--error);
+}
+
+.control-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.control-buttons button {
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+}
+
+/* Needs human banner */
+.needs-human-banner {
+  background: var(--accent-bg);
+  border: 1px solid var(--warn);
+  border-radius: 10px;
+  padding: 16px 20px;
+  color: var(--text-h);
+}
+
+.needs-human-banner strong {
+  color: var(--warn);
+}
+
+.needs-human-banner p {
+  margin-top: 6px;
+  white-space: pre-wrap;
+}
+
+/* Progress checklist */
+.phase-list {
+  margin-bottom: 16px;
+}
+
+.phase-list h3 {
+  font-size: 0.95em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.phase-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.phase-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.phase-item.status-done {
+  color: var(--success);
+}
+
+.phase-item.status-blocked {
+  color: var(--error);
+}
+
+.phase-item.status-running {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Console log */
+.console-log {
+  height: 260px;
+  overflow-y: auto;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: var(--mono);
+  font-size: 0.85em;
+}
+
+.console-empty {
+  color: var(--text);
+}
+
+.console-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Results tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  border-bottom: 2px solid transparent;
+  color: var(--text);
+}
+
+.tab-button.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.download-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.markdown-body {
+  line-height: 1.6;
+}
+
+/* TC table */
+.tc-table-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tc-table-controls input,
+.tc-table-controls select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--text-h);
+}
+
+.tc-table-count {
+  margin-left: auto;
+  color: var(--text);
+  font-size: 0.9em;
+}
+
+.tc-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.tc-table-scroll table {
+  font-size: 0.85em;
+}
+
+.tc-table-scroll th,
+.tc-table-scroll td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+}
+
+.tc-table-scroll th {
+  background: var(--code-bg);
+  position: sticky;
+  top: 0;
+}
+
+.tc-table-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tc-table-pagination button {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+}

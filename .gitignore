@@ -1,16 +1,12 @@
-# 런타임 데이터 (앱이 자동 생성/초기화함 — input/은 기획서 업로드 위치, 나머지는 실행 산출물)
-input/
-state/
-work/
-output/
-archive/
+# Backend (Maven)
+backend/target/
 
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
+# Frontend (Vite)
+frontend/node_modules/
+frontend/dist/
+
+# Env
+.env
 
 # Claude Code 로컬 설정 (개인 로컬 전용, 공유 금지)
 .claude/settings.local.json
@@ -18,3 +14,7 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Cloudflare Tunnel binary
+cloudflared.exe
+

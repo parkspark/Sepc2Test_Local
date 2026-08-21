@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-spec2test}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-spec2test}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-spec2test}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      SPEC2TEST_LLM_PROVIDER: ${SPEC2TEST_LLM_PROVIDER:-ollama}
+      SPEC2TEST_TEXT_MODEL: ${SPEC2TEST_TEXT_MODEL:-qwen3-coder:30b}
+      SPEC2TEST_VISION_MODEL: ${SPEC2TEST_VISION_MODEL:-qwen2.5vl:32b}
+      SPEC2TEST_EMBEDDING_MODEL: ${SPEC2TEST_EMBEDDING_MODEL:-nomic-embed-text}
+      SPEC2TEST_EMBEDDING_PROVIDER: ${SPEC2TEST_EMBEDDING_PROVIDER:-ollama}
+      SPEC2TEST_RAG_TOP_K: ${SPEC2TEST_RAG_TOP_K:-6}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-spec2test}
+      POSTGRES_USER: ${POSTGRES_USER:-spec2test}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-spec2test}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-spec2test} -d ${POSTGRES_DB:-spec2test}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
